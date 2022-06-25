@@ -1,0 +1,30 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.page-wrapper {
+    background-color: transparent;
+    position: relative;
+    min-height: 100vh;
+}
+.page-wrapper:before {
+    content: "";
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background-color: #BAF4D1;
+    background: -moz-linear-gradient(top,  #BAEAF4 0%, #BAEAF4 50%, #BAF4D0 50%, #BAF4D0 100%);
+    background: -webkit-linear-gradient(top,  #BAEAF4 0%,#BAEAF4 50%,#BAF4D0 50%,#BAF4D0 100%);
+    background: linear-gradient(to bottom,  #BAEAF4 0%,#BAEAF4 50%,#BAF4D0 50%,#BAF4D0 100%);
+}
+
+.prose blockquote:not([class~="not-prose"]) + p:not([class~="not-prose"]) > em {
+    display: block;
+    margin-top: -1.25rem;
+    margin-bottom: 1.25rem;
+}
