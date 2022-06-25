@@ -15,7 +15,7 @@
 							? []
 							: inv.attendees.map((attendee) => {
 									const isAttendingEvent = attendee.events && !!attendee.events.find((evt) => evt.id === event.id);
-									return { ...attendee, isAttendingEvent, eventId: event.id };
+									return { ...attendee, foodPreference: attendee.foodPreference || '', isAttendingEvent, eventId: event.id };
 							  });
 					let childrenCount = 0;
 					event.attendees.forEach((attendee, index) => {
@@ -50,9 +50,28 @@
 	let editAttendeeId = '';
 	let newAttendeeName = invitee.attendees && invitee.attendees.length ? '' : fullName;
 	let newAttendeeAge = 0;
+	let newAttendeeFoodPreference = '';
 
 	let childrenAgeThreshold = 12;
 	let showChildrenAgeRange = false;
+
+	const createFoodPreferenceLabel = (pref) => {
+		let label = '';
+		switch (pref) {
+			case 'vegetarian':
+				label = 'Vegetarisch';
+				break;
+			case 'vegan':
+				label = 'Vegan';
+				break;
+			case '':
+				label = '';
+				break;
+			default:
+				label = pref[0].toUpperCase() + pref.substring(1);
+		}
+		return label;
+	};
 
 	const updateEventChildrenCount = (event) => {
 		const newChildrenCount = event.attendees.filter((att) => att.age < childrenAgeThreshold).length;
@@ -78,6 +97,7 @@
 			body: JSON.stringify({
 				name: newAttendeeName,
 				age: newAttendeeAge,
+				foodPreference: newAttendeeFoodPreference,
 				isInvitee: !invitee.attendees || !invitee.attendees.length,
 				inviteeId: invitee.id,
 			}),
@@ -100,6 +120,7 @@
 
 		newAttendeeName = '';
 		newAttendeeAge = 0;
+		newAttendeeFoodPreference = '';
 		showNewAttendeeForm = false;
 
 		invitee.attendees.push(attendee);
@@ -148,7 +169,12 @@
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ name: currentAttendee.name, age: currentAttendee.age, attendeeId: currentAttendee.id }),
+			body: JSON.stringify({
+				name: currentAttendee.name,
+				age: currentAttendee.age,
+				foodPreference: currentAttendee.foodPreference,
+				attendeeId: currentAttendee.id,
+			}),
 		});
 
 		$actionIsPending = false;
@@ -243,6 +269,7 @@
 			showNewAttendeeForm = true;
 			newAttendeeName = fullName;
 			newAttendeeAge = 0;
+			newAttendeeFoodPreference = '';
 		}
 
 		invitee = { ...invitee };
@@ -478,8 +505,13 @@
 						{#if editAttendeeId && attendee.id === editAttendeeId}
 							<tr>
 								<td colspan="2" class="my-2">
-									<form class="flex justify-start align-end gap-2" method="post" action="" on:submit={editAttendee}>
-										<div class="form-control w-full max-w-xs">
+									<form
+										class="flex flex-col lg:flex-row justify-start align-end gap-2"
+										method="post"
+										action=""
+										on:submit={editAttendee}
+									>
+										<div class="form-control w-64 max-w-xs justify-end">
 											<label class="label" for="editName">
 												<span class="label-text text-base">Name:</span>
 											</label>
@@ -490,7 +522,7 @@
 												class="input input-bordered w-full max-w-xs"
 											/>
 										</div>
-										<div class="form-control max-w-xs">
+										<div class="form-control w-20 max-w-xs justify-end">
 											<label class="label" for="editAge">
 												<span class="label-text text-base">Alter:</span>
 											</label>
@@ -501,6 +533,16 @@
 												min="0"
 												class="input input-bordered w-full max-w-xs"
 											/>
+										</div>
+										<div class="form-control max-w-xs justify-end">
+											<label class="label" for="editFoodPreference">
+												<span class="label-text">Ernährungspräferenz:</span>
+											</label>
+											<select id="editFoodPreference" class="select select-bordered" bind:value={attendee.foodPreference}>
+												<option value="">Keine</option>
+												<option value="vegetarian">Vegetarisch</option>
+												<option value="vegan">Vegan</option>
+											</select>
 										</div>
 										<div class="form-control max-w-xs mt-3 justify-end">
 											<button
@@ -552,7 +594,7 @@
 			<div class="my-4">
 				{#if showNewAttendeeForm}
 					<form
-						class="flex justify-start align-end gap-2"
+						class="flex flex-col lg:flex-row justify-start align-end gap-2"
 						method="post"
 						action=""
 						on:submit={(e) => {
@@ -560,7 +602,7 @@
 							addAttendee();
 						}}
 					>
-						<div class="form-control w-full max-w-xs">
+						<div class="form-control w-64 max-w-xs justify-end">
 							<label class="label" for="name">
 								<span class="label-text text-base">Name:</span>
 							</label>
@@ -572,17 +614,39 @@
 								class="input input-bordered w-full max-w-xs"
 							/>
 						</div>
-						<div class="form-control max-w-xs">
+						<div class="form-control w-20 max-w-xs justify-end">
 							<label class="label" for="age">
 								<span class="label-text text-base">Alter:</span>
 							</label>
 							<input id="age" type="number" bind:value={newAttendeeAge} min="0" class="input input-bordered w-full max-w-xs" />
 						</div>
 						<div class="form-control max-w-xs justify-end">
+							<label class="label" for="newAttendeeFoodPreference">
+								<span class="label-text">Ernährungspräferenz:</span>
+							</label>
+							<select id="newAttendeeFoodPreference" class="select select-bordered" bind:value={newAttendeeFoodPreference}>
+								<option value="">Keine</option>
+								<option value="vegetarian">Vegetarisch</option>
+								<option value="vegan">Vegan</option>
+							</select>
+						</div>
+						<div class="form-control max-w-xs justify-end">
 							<button
 								class="btn btn-primary"
 								type="submit"
 								disabled={!newAttendeeName || newAttendeeAge <= 0 ? 'disabled' : undefined}>Hinzufügen</button
+							>
+						</div>
+						<div class="form-control max-w-xs justify-end">
+							<button
+								class="btn btn-secondary"
+								type="button"
+								on:click={() => {
+									showNewAttendeeForm = false;
+									newAttendeeName = '';
+									newAttendeeAge = 0;
+									newAttendeeFoodPreference = '';
+								}}>Abbrechen</button
 							>
 						</div>
 					</form>
@@ -693,36 +757,36 @@
 							{/if}
 							{#if event.inviteeWillAttend || invitee.isHost}
 								<div transition:slide>
-									<h4 class="font-semibold block mt-2 mb-2 text-xl">
-										{invitee.isHost ? 'Gastgeberseitig teilnehmende Personen' : 'Teilnehmende Personen'}:
-									</h4>
-									<ul>
-										{#each event.inviteeAttendees as attendee}
-											<li>
-												<label class="label cursor-pointer justify-start inline-flex">
-													<input
-														type="checkbox"
-														bind:checked={attendee.isAttendingEvent}
-														on:change={() => {
-															toggleEventAttendeeStatus(attendee);
-														}}
-														readonly={attendee.isInvitee}
-														class="checkbox checkbox-primary"
-													/>
-													<span class="label-text text-lg relative" class:font-semibold={attendee.isAttendingEvent}>
-														&nbsp;&nbsp;
-														{attendee.name}
-													</span>
-												</label>
-											</li>
-										{/each}
-									</ul>
-									{#if invitee.isHost}
+									{#if !invitee.isHost}
+										<h4 class="font-semibold block mt-2 mb-2 text-xl">Teilnehmende Personen:</h4>
+										<ul>
+											{#each event.inviteeAttendees as attendee}
+												<li>
+													<label class="label cursor-pointer justify-start inline-flex">
+														<input
+															type="checkbox"
+															bind:checked={attendee.isAttendingEvent}
+															on:change={() => {
+																toggleEventAttendeeStatus(attendee);
+															}}
+															readonly={attendee.isInvitee}
+															class="checkbox checkbox-primary"
+														/>
+														<span class="label-text text-lg relative" class:font-semibold={attendee.isAttendingEvent}>
+															&nbsp;&nbsp;
+															{attendee.name}
+														</span>
+													</label>
+												</li>
+											{/each}
+										</ul>
+									{:else}
 										<h4 class="font-semibold block mt-2 mb-2 text-xl">Insgesamt teilnehmende Personen:</h4>
 										<ol class="list-decimal">
 											{#each event.attendees as attendee}
 												<li class="list-item list-inside text-lg">
 													{attendee.name}
+													{attendee.foodPreference ? ` (${createFoodPreferenceLabel(attendee.foodPreference)})` : ''}
 												</li>
 											{/each}
 										</ol>

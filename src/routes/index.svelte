@@ -43,8 +43,8 @@
 		Jahre, aber das hier passiert nur ein einziges Mal!
 	</p>
 	<p class="text-xl mb-4">
-		Aus diesem Grund lade ich Familienmitglieder, alte Freunde und Bekannte sowie (falls vorhanden) deren Partner und Nachwuchs
-		herzlich ein, diesen besonderen Tag gemeinsam mit mir zu feiern... beziehungsweise nachzufeiern.
+		Aus diesem Grund lade ich Familienmitglieder, alte Freunde und Bekannte sowie (falls vorhanden) deren Partner/innen und
+		Nachwuchs herzlich ein, diesen besonderen Tag gemeinsam mit mir zu feiern... beziehungsweise nachzufeiern.
 	</p>
 	<p class="text-xl mb-4">
 		Es gibt nämlich zwei, auf vier Events aufgeteilte Feiern:<br />

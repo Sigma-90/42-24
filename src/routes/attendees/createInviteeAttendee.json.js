@@ -11,9 +11,23 @@ export const post = async ({ request }) => {
 
 	try {
 		const query = gql`
-			mutation CreateNewAttendee($slug: String!, $name: String!, $age: Int!, $isInvitee: Boolean, $inviteeId: ID!) {
+			mutation CreateNewAttendee(
+				$slug: String!
+				$name: String!
+				$age: Int!
+				$foodPreference: String
+				$isInvitee: Boolean
+				$inviteeId: ID!
+			) {
 				newAttendee: createAttendee(
-					data: { slug: $slug, name: $name, age: $age, isInvitee: $isInvitee, invitee: { connect: { id: $inviteeId } } }
+					data: {
+						slug: $slug
+						name: $name
+						age: $age
+						isInvitee: $isInvitee
+						foodPreference: $foodPreference
+						invitee: { connect: { id: $inviteeId } }
+					}
 				) {
 					id
 				}
@@ -31,6 +45,7 @@ export const post = async ({ request }) => {
 				.replace(/[^0-9a-z-_]/g, ''),
 			name: attendeeData.name,
 			age: attendeeData.age,
+			foodPreference: attendeeData.foodPreference,
 			isInvitee: attendeeData.isInvitee,
 			inviteeId: attendeeData.inviteeId,
 		};
@@ -43,6 +58,7 @@ export const post = async ({ request }) => {
 					slug
 					name
 					age
+					foodPreference
 					isInvitee
 					invitee {
 						id

@@ -23,6 +23,7 @@ export const get = async (/** @type {any} */ request) => {
 							id
 							name
 							age
+							foodPreference
 						}
 					}
 					attendedEvents {

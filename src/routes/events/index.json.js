@@ -12,6 +12,7 @@ export const get = async () => {
 					attendees {
 						name
 						age
+						foodPreference
 					}
 				}
 			}

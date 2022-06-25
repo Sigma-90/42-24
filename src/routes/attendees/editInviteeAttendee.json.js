@@ -11,12 +11,16 @@ export const post = async ({ request }) => {
 
 	try {
 		const query = gql`
-			mutation updateAttendeeData($attendeeId: ID!, $name: String!, $age: Int!) {
-				attendee: updateAttendee(where: { id: $attendeeId }, data: { name: $name, age: $age }) {
+			mutation updateAttendeeData($attendeeId: ID!, $name: String!, $age: Int!, $foodPreference: String) {
+				attendee: updateAttendee(
+					where: { id: $attendeeId }
+					data: { name: $name, age: $age, foodPreference: $foodPreference }
+				) {
 					id
 					slug
 					name
 					age
+					foodPreference
 					isInvitee
 					invitee {
 						id
@@ -28,6 +32,7 @@ export const post = async ({ request }) => {
 		const variables = {
 			name: attendeeData.name,
 			age: attendeeData.age,
+			foodPreference: attendeeData.foodPreference,
 			attendeeId: attendeeData.attendeeId,
 		};
 		const { attendee } = await client.request(query, variables);
