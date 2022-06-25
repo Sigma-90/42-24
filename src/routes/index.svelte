@@ -38,19 +38,19 @@
 	</div>
 	<p class="text-xl mb-4">
 		Man wird nur einmal im Leben 42 und wenn dies dann auch noch an einem 24. passiert, in einem Jahr in dem die Summen der
-		beiden optischen Hälften der Jahreszahl wiederum 42 ergeben, dann ist das ein so einmaliges Ereignis, das es um ein
+		beiden optischen Hälften der Jahreszahl wiederum 42 ergeben, dann ist dies ein so einmaliges Ereignis, welches es um ein
 		Vielfaches lohnenswerter macht, gefeiert zu werden, als ein x-beliebiger runder Geburtstag... die kommen immerhin alle 10
 		Jahre, aber das hier passiert nur ein einziges Mal!
 	</p>
 	<p class="text-xl mb-4">
-		Aus diesem Grund lade ich zahlreiche Familienmitglieder, alte Freunde und Bekannte sowie (falls vorhanden) deren Partner und
-		Nachwuchs herzlich ein, diesen besonderen Tag gemeinsam mit mir zu feiern... beziehungsweise nachzufeiern.
+		Aus diesem Grund lade ich Familienmitglieder, alte Freunde und Bekannte sowie (falls vorhanden) deren Partner und Nachwuchs
+		herzlich ein, diesen besonderen Tag gemeinsam mit mir zu feiern... beziehungsweise nachzufeiern.
 	</p>
 	<p class="text-xl mb-4">
 		Es gibt nämlich zwei, auf vier Events aufgeteilte Feiern:<br />
-		Direkt an meinem Geburtstag gibt es ein großes Festessen für Familie, beste Freunde und alte Bekannte mit anschließender After-Party
+		Direkt an meinem Geburtstag gibt es ein großes Festessen für Familie, alte Freunde und Bekannte mit anschließender After-Party
 		in der alten Heimat.<br />
-		Zwei Wochen darauf findet dann die Nachfeier für alle Freunde und Kollegen in meiner Wahlheimat statt.
+		Zwei Wochen darauf findet dann die Nachfeier für alle Freunde, Kolleginnen und Kollegen in meiner Wahlheimat statt.
 	</p>
 	<p class="text-xl mb-4">
 		Diese Website dient dem Zweck der Veranstaltungsplanung, damit ich für jedes Event im Blick habe, wie viele Personen an
@@ -59,10 +59,7 @@
 	</p>
 	<p class="text-xl mb-4">
 		Ich möchte Dich daher bitten, hier anzugeben, an welchem der geplanten Termine du teilnehmen möchtest und wie viele Personen
-		du jeweils mitzubringen gedenkst.<br />
-		Nach der Anmeldung (siehe unten) wirst Du alle Events sehen, die für Dich in Frage kommen.<br />
-		Nachdem Du einmal alle Personen, die Du zu einem der Events mitbringen möchtest, aufgelistet hast, kannst Du dann für jedes Event
-		wählen, wer davon mitkommt.
+		Du jeweils mitzubringen gedenkst.
 	</p>
 	<hr class="my-6 bg-black border-black" />
 	<p class="text-xl mb-6 font-semibold">

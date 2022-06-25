@@ -681,7 +681,7 @@
 											/>
 											<span class="label-text text-lg relative">
 												&nbsp;&nbsp;
-												{#if event.inviteeWillAttend}
+												{#if event.inviteeWillAttend || true}
 													<span class="absolute" transition:scale>&nbsp;&nbsp;Ja&nbsp;&nbsp;</span>
 												{:else}
 													<span class="absolute" transition:scale>Nein</span>
