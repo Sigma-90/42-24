@@ -27,7 +27,7 @@ export const get = async (/** @type {any} */ request) => {
 		return {
 			status: 500,
 			// @ts-ignore
-			body: { error: 'Serverfehler. Bitte später erneut versuchen.', details: process.env.GQL_ENDPOINT + '\n' + error.message },
+			body: { error: 'Serverfehler. Bitte später erneut versuchen.', details: error.message },
 		};
 	}
 };
