@@ -448,146 +448,153 @@
 </script>
 
 {#if invitee}
-	<article class="mt-6 bg-base-100 shadow-lg py-4 px-6 mb-8">
-		<h2 class="text-3xl font-extrabold mb-6">Event-Anmeldung</h2>
-		<p class="text-xl mb-4">
-			Hallo {invitee.name}!<br />
-			Diese Website dient dem Zweck der Veranstaltungsplanung, damit ich für jedes Event im Blick habe, wie viele Personen an welcher
-			Feier teilnehmen werden. Dies ist für meine Planung und Kostenabschätzung von essentieller Bedeutung, da hiervon Reservierungsangaben
-			und Einkaufskosten abhängen.
-		</p>
-		<p class="text-xl mb-4">
-			Ich möchte dich daher bitten, hier anzugeben, an welchem der geplanten Termine du teilnehmen möchtest und wie viele
-			Personen du jeweils mitzubringen gedenkst.
-		</p>
-	</article>
-	<section class="bg-base-100 shadow-lg py-4 px-6 mb-8">
-		<h2 class="text-3xl font-extrabold mb-6">Deine Gesamt-Teilnehmerliste</h2>
-		<p class="text-lg my-4">
-			Gib hier bitte Name und Alter (wichtig um zu ermitteln, wie viele Kinder unter den Gästen sein werden) aller Personen an,
-			die du zu einem oder mehreren der Events mitbringen möchtest. Trage dich hier bitte als Erstes selbst ein und danach
-			Partner/In und Kinder.
-		</p>
-		{#if invitee.attendees.length}
-			<table class="text-lg">
-				{#each invitee.attendees as attendee}
-					{#if editAttendeeId && attendee.id === editAttendeeId}
-						<tr>
-							<td colspan="2" class="my-2">
-								<form class="flex justify-start align-end gap-2" method="post" action="" on:submit={editAttendee}>
-									<div class="form-control w-full max-w-xs">
-										<label class="label" for="editName">
-											<span class="label-text text-base">Name:</span>
-										</label>
-										<input id="editName" type="text" bind:value={attendee.name} class="input input-bordered w-full max-w-xs" />
-									</div>
-									<div class="form-control max-w-xs">
-										<label class="label" for="editAge">
-											<span class="label-text text-base">Alter:</span>
-										</label>
-										<input
-											id="editAge"
-											type="number"
-											bind:value={attendee.age}
-											min="0"
-											class="input input-bordered w-full max-w-xs"
-										/>
-									</div>
-									<div class="form-control max-w-xs mt-3 justify-end">
-										<button
-											type="submit"
-											disabled={!attendee.name || attendee.age <= 0 ? 'disabled' : undefined}
-											class="btn btn-primary">Speichern</button
-										>
-									</div>
-									<div class="form-control max-w-xs mt-2 justify-end">
-										<button
-											type="button"
-											class="btn btn-secondary"
-											on:click={() => {
-												editAttendeeId = '';
-											}}>Abbrechen</button
-										>
-									</div>
-								</form>
-							</td></tr
-						>
-					{:else}
-						<tr>
-							<td class="text-lg font-semibold">{attendee.name}</td>
-							<td class="px-2">
-								<button
-									class=""
-									type="button"
-									data-editid={attendee.id}
-									on:click={() => {
-										editAttendeeId = attendee.id;
-									}}>📝</button
-								>
-								<button
-									class=""
-									type="button"
-									data-editid={attendee.id}
-									on:click={() => {
-										if (confirm('Wirklich löschen?')) {
-											deleteAttendee(attendee.id);
-										}
-									}}>❌</button
-								>
-							</td>
-						</tr>
-					{/if}
-				{/each}
-			</table>
-		{/if}
-		<div class="my-4">
-			{#if showNewAttendeeForm}
-				<form
-					class="flex justify-start align-end gap-2"
-					method="post"
-					action=""
-					on:submit={(e) => {
-						e.preventDefault();
-						addAttendee();
-					}}
-				>
-					<div class="form-control w-full max-w-xs">
-						<label class="label" for="name">
-							<span class="label-text text-base">Name:</span>
-						</label>
-						<input
-							id="name"
-							type="text"
-							bind:value={newAttendeeName}
-							readonly={!invitee.attendees || !invitee.attendees.length}
-							class="input input-bordered w-full max-w-xs"
-						/>
-					</div>
-					<div class="form-control max-w-xs">
-						<label class="label" for="age">
-							<span class="label-text text-base">Alter:</span>
-						</label>
-						<input id="age" type="number" bind:value={newAttendeeAge} min="0" class="input input-bordered w-full max-w-xs" />
-					</div>
-					<div class="form-control max-w-xs justify-end">
-						<button
-							class="btn btn-primary"
-							type="submit"
-							disabled={!newAttendeeName || newAttendeeAge <= 0 ? 'disabled' : undefined}>Hinzufügen</button
-						>
-					</div>
-				</form>
-			{:else}
-				<button
-					class="btn btn-primary"
-					type="button"
-					on:click={() => {
-						showNewAttendeeForm = true;
-					}}>Weiteren Teilnehmer hinzufügen</button
-				>
+	{#if !invitee.isHost || !invitee.attendees || !invitee.attendees.length}
+		<article class="mt-6 bg-base-100 shadow-lg py-4 px-6 mb-8">
+			<h2 class="text-3xl font-extrabold mb-6">Event-Anmeldung</h2>
+			<p class="text-xl mb-4">
+				Hallo {invitee.name}!<br />
+				Diese Website dient dem Zweck der Veranstaltungsplanung, damit ich für jedes Event im Blick habe, wie viele Personen an welcher
+				Feier teilnehmen werden. Dies ist für meine Planung und Kostenabschätzung von essentieller Bedeutung, da hiervon Reservierungsangaben
+				und Einkaufskosten abhängen.
+			</p>
+			<p class="text-xl mb-4">
+				Ich möchte dich daher bitten, hier anzugeben, an welchem der geplanten Termine du teilnehmen möchtest und wie viele
+				Personen du jeweils mitzubringen gedenkst.
+			</p>
+		</article>
+		<section class="bg-base-100 shadow-lg py-4 px-6 mb-8">
+			<h2 class="text-3xl font-extrabold mb-6">Deine Gesamt-Teilnehmerliste</h2>
+			<p class="text-lg my-4">
+				Gib hier bitte Name und Alter (wichtig um zu ermitteln, wie viele Kinder unter den Gästen sein werden) aller Personen
+				an, die du zu einem oder mehreren der Events mitbringen möchtest. Trage dich hier bitte als Erstes selbst ein und danach
+				Partner/In und Kinder.
+			</p>
+			{#if invitee.attendees.length}
+				<table class="text-lg">
+					{#each invitee.attendees as attendee}
+						{#if editAttendeeId && attendee.id === editAttendeeId}
+							<tr>
+								<td colspan="2" class="my-2">
+									<form class="flex justify-start align-end gap-2" method="post" action="" on:submit={editAttendee}>
+										<div class="form-control w-full max-w-xs">
+											<label class="label" for="editName">
+												<span class="label-text text-base">Name:</span>
+											</label>
+											<input
+												id="editName"
+												type="text"
+												bind:value={attendee.name}
+												class="input input-bordered w-full max-w-xs"
+											/>
+										</div>
+										<div class="form-control max-w-xs">
+											<label class="label" for="editAge">
+												<span class="label-text text-base">Alter:</span>
+											</label>
+											<input
+												id="editAge"
+												type="number"
+												bind:value={attendee.age}
+												min="0"
+												class="input input-bordered w-full max-w-xs"
+											/>
+										</div>
+										<div class="form-control max-w-xs mt-3 justify-end">
+											<button
+												type="submit"
+												disabled={!attendee.name || attendee.age <= 0 ? 'disabled' : undefined}
+												class="btn btn-primary">Speichern</button
+											>
+										</div>
+										<div class="form-control max-w-xs mt-2 justify-end">
+											<button
+												type="button"
+												class="btn btn-secondary"
+												on:click={() => {
+													editAttendeeId = '';
+												}}>Abbrechen</button
+											>
+										</div>
+									</form>
+								</td></tr
+							>
+						{:else}
+							<tr>
+								<td class="text-lg font-semibold">{attendee.name}</td>
+								<td class="px-2">
+									<button
+										class=""
+										type="button"
+										data-editid={attendee.id}
+										on:click={() => {
+											editAttendeeId = attendee.id;
+										}}>📝</button
+									>
+									<button
+										class=""
+										type="button"
+										data-editid={attendee.id}
+										on:click={() => {
+											if (confirm('Wirklich löschen?')) {
+												deleteAttendee(attendee.id);
+											}
+										}}>❌</button
+									>
+								</td>
+							</tr>
+						{/if}
+					{/each}
+				</table>
 			{/if}
-		</div>
-	</section>
+			<div class="my-4">
+				{#if showNewAttendeeForm}
+					<form
+						class="flex justify-start align-end gap-2"
+						method="post"
+						action=""
+						on:submit={(e) => {
+							e.preventDefault();
+							addAttendee();
+						}}
+					>
+						<div class="form-control w-full max-w-xs">
+							<label class="label" for="name">
+								<span class="label-text text-base">Name:</span>
+							</label>
+							<input
+								id="name"
+								type="text"
+								bind:value={newAttendeeName}
+								readonly={!invitee.attendees || !invitee.attendees.length}
+								class="input input-bordered w-full max-w-xs"
+							/>
+						</div>
+						<div class="form-control max-w-xs">
+							<label class="label" for="age">
+								<span class="label-text text-base">Alter:</span>
+							</label>
+							<input id="age" type="number" bind:value={newAttendeeAge} min="0" class="input input-bordered w-full max-w-xs" />
+						</div>
+						<div class="form-control max-w-xs justify-end">
+							<button
+								class="btn btn-primary"
+								type="submit"
+								disabled={!newAttendeeName || newAttendeeAge <= 0 ? 'disabled' : undefined}>Hinzufügen</button
+							>
+						</div>
+					</form>
+				{:else}
+					<button
+						class="btn btn-primary"
+						type="button"
+						on:click={() => {
+							showNewAttendeeForm = true;
+						}}>Weiteren Teilnehmer hinzufügen</button
+					>
+				{/if}
+			</div>
+		</section>
+	{/if}
 	<section>
 		<h2 class="text-3xl font-extrabold mb-4 bg-base-100 shadow-lg py-4 px-6">Übersicht der anstehenden Veranstaltungen:</h2>
 		{#if invitee.eligibleEvents.length}
