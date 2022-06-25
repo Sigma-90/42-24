@@ -1,9 +1,16 @@
 <script>
 	// @ts-nocheck
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
-	let email = '';
+	const queryString = $page.url.search;
+	const params = queryString ? new URLSearchParams(queryString) : undefined;
+	let email = params && params.has('eingeladen') ? params.get('eingeladen') : '';
 	const getInvitee = async (email) => {
+		if (!email) {
+			alert('Das Feld "E-Mail-Adresse" darf nicht leer sein.');
+			return;
+		}
 		const res = await fetch(`/eingeladene/by-email.json?email=${email}`);
 		if (res.ok) {
 			const data = await res.json();
@@ -55,6 +62,6 @@
 			</label>
 			<input id="email" type="email" bind:value={email} class="input input-bordered" />
 		</div>
-		<button type="submit" class="btn btn-primary mb-2">Bestätigen</button>
+		<button type="submit" disabled={!email} class="btn btn-primary mb-2">Bestätigen</button>
 	</form>
 </article>
