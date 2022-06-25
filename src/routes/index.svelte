@@ -66,7 +66,7 @@
 	</p>
 	<hr class="my-6 bg-black border-black" />
 	<p class="text-xl mb-6 font-semibold">
-		Wenn du auf dieser Seite bist, bedeutet das, dass ich dir einen Link habe zukommen lassen. Bitte trage deine E-Mail-Adresse,
+		Wenn Du auf dieser Seite bist, bedeutet das, dass ich Dir einen Link habe zukommen lassen. Bitte trage Deine E-Mail-Adresse,
 		an die ich den Link geschickt hatte, in das folgende Feld ein, um fortzufahren:
 	</p>
 	<form

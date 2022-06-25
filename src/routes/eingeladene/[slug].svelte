@@ -453,21 +453,24 @@
 			<h2 class="text-3xl font-extrabold mb-6">Event-Anmeldung</h2>
 			<p class="text-xl mb-4">
 				Hallo {invitee.name}!<br />
+				<br />
 				Diese Website dient dem Zweck der Veranstaltungsplanung, damit ich für jedes Event im Blick habe, wie viele Personen an welcher
 				Feier teilnehmen werden. Dies ist für meine Planung und Kostenabschätzung von essentieller Bedeutung, da hiervon Reservierungsangaben
 				und Einkaufskosten abhängen.
 			</p>
 			<p class="text-xl mb-4">
-				Ich möchte dich daher bitten, hier anzugeben, an welchem der geplanten Termine du teilnehmen möchtest und wie viele
-				Personen du jeweils mitzubringen gedenkst.
+				Ich möchte Dich daher bitten, hier anzugeben, an welchem der geplanten Termine Du teilnehmen möchtest und wie viele
+				Personen Du jeweils mitzubringen gedenkst.
 			</p>
 		</article>
 		<section class="bg-base-100 shadow-lg py-4 px-6 mb-8">
 			<h2 class="text-3xl font-extrabold mb-6">Deine Gesamt-Teilnehmerliste</h2>
 			<p class="text-lg my-4">
 				Gib hier bitte Name und Alter (wichtig um zu ermitteln, wie viele Kinder unter den Gästen sein werden) aller Personen
-				an, die du zu einem oder mehreren der Events mitbringen möchtest. Trage dich hier bitte als Erstes selbst ein und danach
-				Partner/In und Kinder.
+				an, die Du zu einem oder mehreren der Events mitbringen möchtest. Trage Dich hier bitte als Erstes selbst ein und danach
+				Partner/In und Kinder.<br />
+				Dies muss nur einmal hier erfolgen. Sobald die Liste komplett ist, kannst Du dann für jedes der unten aufgelisteten Events,
+				für das Du zugesagt hast, angeben, wer davon zum jeweiligen Event mitkommt.
 			</p>
 			{#if invitee.attendees.length}
 				<table class="text-lg">
