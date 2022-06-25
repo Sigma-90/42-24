@@ -58,8 +58,8 @@
 		Reservierungsangaben und Einkaufskosten abhängen.
 	</p>
 	<p class="text-xl mb-4">
-		Ich möchte Dich daher bitten, hier anzugeben, an welchem der geplanten Termine du teilnehmen möchtest und wie viele Personen
-		Du jeweils mitzubringen gedenkst.
+		Ich bitte Dich daher, hier anzugeben, an welchem der geplanten Termine du teilnehmen möchtest und wie viele Personen Du
+		jeweils mitzubringen gedenkst.
 	</p>
 	<hr class="my-6 bg-black border-black" />
 	<p class="text-xl mb-6 font-semibold">
