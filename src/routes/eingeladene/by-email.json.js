@@ -24,6 +24,10 @@ export const get = async (/** @type {any} */ request) => {
 
 		return { status: 200, body: { invitee } };
 	} catch (error) {
-		return { status: 500, body: { error: 'Serverfehler. Bitte später erneut versuchen.' } };
+		return {
+			status: 500,
+			// @ts-ignore
+			body: { error: 'Serverfehler. Bitte später erneut versuchen.', details: process.env.GQL_ENDPOINT + '\n' + error.message },
+		};
 	}
 };
