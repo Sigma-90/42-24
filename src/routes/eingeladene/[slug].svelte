@@ -25,7 +25,7 @@
 					});
 					allEvents[index].attendeeCount = attendeeCount;
 					allEvents[index].childrenCount = childrenCount;
-					allEvents[index].inviteeWillAttend = inviteeWillAttend;
+					allEvents[index].inviteeWillAttend = !!inviteeWillAttend;
 					allEvents[index].inviteeAttendees = eligibleAttendees;
 				});
 			}
@@ -143,7 +143,7 @@
 				});
 				invitee.eligibleEvents[index].attendeeCount = attendeeCount;
 				invitee.eligibleEvents[index].childrenCount = childrenCount;
-				invitee.eligibleEvents[index].inviteeWillAttend = inviteeWillAttend;
+				invitee.eligibleEvents[index].inviteeWillAttend = !!inviteeWillAttend;
 				invitee.eligibleEvents[index].inviteeAttendees = eligibleAttendees;
 			});
 		}
@@ -261,7 +261,7 @@
 				});
 				invitee.eligibleEvents[index].attendeeCount = attendeeCount;
 				invitee.eligibleEvents[index].childrenCount = childrenCount;
-				invitee.eligibleEvents[index].inviteeWillAttend = inviteeWillAttend;
+				invitee.eligibleEvents[index].inviteeWillAttend = !!inviteeWillAttend;
 				invitee.eligibleEvents[index].inviteeAttendees = eligibleAttendees;
 			});
 		}
@@ -571,6 +571,7 @@
 										class=""
 										type="button"
 										data-editid={attendee.id}
+										title="Eintrag bearbeiten"
 										on:click={() => {
 											editAttendeeId = attendee.id;
 										}}>📝</button
@@ -579,6 +580,7 @@
 										class=""
 										type="button"
 										data-editid={attendee.id}
+										title="Eintrag löschen"
 										on:click={() => {
 											if (confirm('Wirklich löschen?')) {
 												deleteAttendee(attendee.id);
@@ -656,7 +658,7 @@
 						type="button"
 						on:click={() => {
 							showNewAttendeeForm = true;
-						}}>Weiteren Teilnehmer hinzufügen</button
+						}}>Weiteren Listeneintrag anlegen</button
 					>
 				{/if}
 			</div>
@@ -672,17 +674,20 @@
 							<header>
 								<h3 class="text-2xl font-extrabold mb-6 min-h-16">{event.what}</h3>
 								<p>
-									📅 {new Date(event.when).toLocaleDateString('de-DE')} 🕔 {new Date(event.when).toLocaleTimeString('de-DE')}
+									<span title="Datum">📅</span>
+									{new Date(event.when).toLocaleDateString('de-DE')} <span title="Uhrzeit">🕔</span>
+									{new Date(event.when).toLocaleTimeString('de-DE')}
 								</p>
-								<p>🗺️ {event.where}</p>
+								<p><span title="Ort">🗺️</span> {event.where}</p>
 							</header>
 							<section class="mb-4">
 								<div class="flex justify-between">
-									<h4 class="flex-grow-0 font-semibold">Aktuelle Teilnehmerzahl:</h4>
+									<h4 class="flex-grow-0 font-semibold">Aktuelle Teilnehmeranzahl:</h4>
 									<p class="flex-grow-0">
 										{event.attendeeCount}, davon {event.childrenCount} Kinder unter {childrenAgeThreshold}
 										<button
 											type="button"
+											title={'Kinder-Altersgrenzen-Anpassung ' + (showChildrenAgeRange ? ' verbergen' : ' anzeigen')}
 											on:click={() => {
 												showChildrenAgeRange = !showChildrenAgeRange;
 											}}>{showChildrenAgeRange ? '▲' : '▼'}</button
@@ -732,7 +737,7 @@
 							{#if !invitee.isHost}
 								<section class="mb-2">
 									<h4 class="font-semibold block mt-2 mb-2 text-xl">Nimmst du an diesem Event teil?</h4>
-									<div class="form-control block">
+									<!-- <div class="form-control block">
 										<label class="label cursor-pointer justify-start inline-flex">
 											<input
 												id="willAttend"
@@ -751,6 +756,36 @@
 													<span class="absolute" transition:scale>Nein</span>
 												{/if}
 											</span>
+										</label>
+									</div> -->
+									<div class="form-control">
+										<label class="label cursor-pointer justify-start">
+											<input
+												type="radio"
+												name={'radio_attending_' + event.slug}
+												class="radio radio-primary"
+												bind:group={event.inviteeWillAttend}
+												on:change={() => {
+													toggleEventRegistration(event.id);
+												}}
+												value={false}
+											/>
+											<span class="label-text text-lg ml-4">Nein</span>
+										</label>
+									</div>
+									<div class="form-control">
+										<label class="label cursor-pointer justify-start">
+											<input
+												type="radio"
+												name={'radio_attending_' + event.slug}
+												class="radio radio-primary"
+												bind:group={event.inviteeWillAttend}
+												on:change={() => {
+													toggleEventRegistration(event.id);
+												}}
+												value={true}
+											/>
+											<span class="label-text text-lg ml-4">Ja</span>
 										</label>
 									</div>
 								</section>
