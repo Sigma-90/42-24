@@ -5,7 +5,12 @@ import { gql } from 'graphql-request';
 export const post = async ({ request }) => {
 	const attendeeData = await request.json();
 
-	if (!attendeeData.age || (attendeeData.isChild && attendeeData.age <= 0) || !attendeeData.name || !attendeeData.inviteeId) {
+	if (
+		typeof attendeeData.age === 'undefined' ||
+		(attendeeData.isChild && attendeeData.age <= 0) ||
+		!attendeeData.name ||
+		!attendeeData.inviteeId
+	) {
 		return { status: 400, body: { error: 'Ungültige Eingabe!' } };
 	}
 
