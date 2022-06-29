@@ -736,8 +736,15 @@
 							</section>
 							{#if !invitee.isHost}
 								<section class="mb-2">
-									<h4 class="font-semibold block mt-2 mb-2 text-xl">Nimmst du an diesem Event teil?</h4>
-									<!-- <div class="form-control block">
+									{#if !invitee.attendees || !invitee.attendees.length}
+										<h4 class="font-semibold block mt-2 mb-2 text-xl">Teilnahmebestätigung</h4>
+										<p class="text-lg">
+											Du kannst erst zu diesem Event zusagen, wenn du der obigen Teilnehmerliste mindestens einen Eintrag
+											(nämlich den für dich selbst) hinzugefügt hast.
+										</p>
+									{:else}
+										<h4 class="font-semibold block mt-2 mb-2 text-xl">Nimmst du an diesem Event teil?</h4>
+										<!-- <div class="form-control block">
 										<label class="label cursor-pointer justify-start inline-flex">
 											<input
 												id="willAttend"
@@ -758,36 +765,37 @@
 											</span>
 										</label>
 									</div> -->
-									<div class="form-control">
-										<label class="label cursor-pointer justify-start">
-											<input
-												type="radio"
-												name={'radio_attending_' + event.slug}
-												class="radio radio-primary"
-												bind:group={event.inviteeWillAttend}
-												on:change={() => {
-													toggleEventRegistration(event.id);
-												}}
-												value={false}
-											/>
-											<span class="label-text text-lg ml-4">Nein</span>
-										</label>
-									</div>
-									<div class="form-control">
-										<label class="label cursor-pointer justify-start">
-											<input
-												type="radio"
-												name={'radio_attending_' + event.slug}
-												class="radio radio-primary"
-												bind:group={event.inviteeWillAttend}
-												on:change={() => {
-													toggleEventRegistration(event.id);
-												}}
-												value={true}
-											/>
-											<span class="label-text text-lg ml-4">Ja</span>
-										</label>
-									</div>
+										<div class="form-control">
+											<label class="label cursor-pointer justify-start">
+												<input
+													type="radio"
+													name={'radio_attending_' + event.slug}
+													class="radio radio-primary"
+													bind:group={event.inviteeWillAttend}
+													on:change={() => {
+														toggleEventRegistration(event.id);
+													}}
+													value={false}
+												/>
+												<span class="label-text text-lg ml-4">Nein</span>
+											</label>
+										</div>
+										<div class="form-control">
+											<label class="label cursor-pointer justify-start">
+												<input
+													type="radio"
+													name={'radio_attending_' + event.slug}
+													class="radio radio-primary"
+													bind:group={event.inviteeWillAttend}
+													on:change={() => {
+														toggleEventRegistration(event.id);
+													}}
+													value={true}
+												/>
+												<span class="label-text text-lg ml-4">Ja</span>
+											</label>
+										</div>
+									{/if}
 								</section>
 							{/if}
 							{#if event.inviteeWillAttend || invitee.isHost}
