@@ -66,6 +66,6 @@ export const post = async ({ request }) => {
 		return { status: 200, body: { event } };
 	} catch (error) {
 		// @ts-ignore
-		return { status: 500, body: { error: 'Serverfehler. Bitte später erneut versuchen. ' + error.message } };
+		return { status: 500, body: { error: 'Serverfehler. Bitte später erneut versuchen.' } };
 	}
 };
