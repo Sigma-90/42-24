@@ -22,6 +22,7 @@ export const get = async (/** @type {any} */ request) => {
 						attendees {
 							id
 							name
+							isChild
 							age
 							foodPreference
 						}
@@ -33,6 +34,7 @@ export const get = async (/** @type {any} */ request) => {
 						id
 						slug
 						name
+						isChild
 						age
 						isInvitee
 						events {

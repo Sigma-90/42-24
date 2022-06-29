@@ -38,7 +38,7 @@
 <script>
 	// @ts-nocheck
 	import SvelteMarkdown from 'svelte-markdown';
-	import { scale, slide } from 'svelte/transition';
+	import { scale, slide, fade } from 'svelte/transition';
 	import { actionIsPending } from '$lib/utils/stores';
 
 	export let invitee;
@@ -49,6 +49,7 @@
 
 	let editAttendeeId = '';
 	let newAttendeeName = invitee.attendees && invitee.attendees.length ? '' : fullName;
+	let newAttendeeIsChild = false;
 	let newAttendeeAge = 0;
 	let newAttendeeFoodPreference = '';
 
@@ -82,7 +83,7 @@
 	};
 
 	const addAttendee = async () => {
-		if (!newAttendeeName || newAttendeeAge <= 0) {
+		if (!newAttendeeName || (newAttendeeIsChild && newAttendeeAge <= 0)) {
 			alert('Nicht alle Felder ausgefüllt!');
 			return;
 		}
@@ -96,6 +97,7 @@
 			},
 			body: JSON.stringify({
 				name: newAttendeeName,
+				isChild: newAttendeeIsChild,
 				age: newAttendeeAge,
 				foodPreference: newAttendeeFoodPreference,
 				isInvitee: !invitee.attendees || !invitee.attendees.length,
@@ -119,6 +121,7 @@
 		}
 
 		newAttendeeName = '';
+		newAttendeeIsChild = false;
 		newAttendeeAge = 0;
 		newAttendeeFoodPreference = '';
 		showNewAttendeeForm = false;
@@ -268,6 +271,7 @@
 		if (!invitee.attendees || !invitee.attendees.length) {
 			showNewAttendeeForm = true;
 			newAttendeeName = fullName;
+			newAttendeeIsChild = false;
 			newAttendeeAge = 0;
 			newAttendeeFoodPreference = '';
 		}
@@ -522,18 +526,6 @@
 												class="input input-bordered w-full max-w-xs"
 											/>
 										</div>
-										<div class="form-control w-20 max-w-xs justify-end">
-											<label class="label" for="editAge">
-												<span class="label-text text-base">Alter:</span>
-											</label>
-											<input
-												id="editAge"
-												type="number"
-												bind:value={attendee.age}
-												min="0"
-												class="input input-bordered w-full max-w-xs"
-											/>
-										</div>
 										<div class="form-control max-w-xs justify-end">
 											<label class="label" for="editFoodPreference">
 												<span class="label-text">Ernährungspräferenz:</span>
@@ -544,10 +536,45 @@
 												<option value="vegan">Vegan</option>
 											</select>
 										</div>
+										<div class="form-control max-w-xs justify-end">
+											<label class="label" for="editIsChild">
+												<span class="label-text">Ist diese Person ein Kind?</span>
+											</label>
+											<label class="label cursor-pointer justify-start inline-flex h-12">
+												<input
+													id="editIsChild"
+													type="checkbox"
+													bind:checked={attendee.isChild}
+													class="checkbox checkbox-primary"
+												/>
+												<span class="label-text text-lg relative">
+													&nbsp;&nbsp;
+													{#if attendee.isChild}
+														<span class="absolute">&nbsp;&nbsp;Ja&nbsp;&nbsp;</span>
+													{:else}
+														<span class="absolute">Nein</span>
+													{/if}
+												</span>
+											</label>
+										</div>
+										{#if attendee.isChild}
+											<div class="form-control w-20 max-w-xs justify-end">
+												<label class="label" for="editAge">
+													<span class="label-text text-base">Alter:</span>
+												</label>
+												<input
+													id="editAge"
+													type="number"
+													bind:value={attendee.age}
+													min="0"
+													class="input input-bordered w-full max-w-xs"
+												/>
+											</div>
+										{/if}
 										<div class="form-control max-w-xs mt-3 justify-end">
 											<button
 												type="submit"
-												disabled={!attendee.name || attendee.age <= 0 ? 'disabled' : undefined}
+												disabled={!attendee.name || (attendee.isChild && attendee.age <= 0) ? 'disabled' : undefined}
 												class="btn btn-primary">Speichern</button
 											>
 										</div>
@@ -616,12 +643,6 @@
 								class="input input-bordered w-full max-w-xs"
 							/>
 						</div>
-						<div class="form-control w-20 max-w-xs justify-end">
-							<label class="label" for="age">
-								<span class="label-text text-base">Alter:</span>
-							</label>
-							<input id="age" type="number" bind:value={newAttendeeAge} min="0" class="input input-bordered w-full max-w-xs" />
-						</div>
 						<div class="form-control max-w-xs justify-end">
 							<label class="label" for="newAttendeeFoodPreference">
 								<span class="label-text">Ernährungspräferenz:</span>
@@ -633,10 +654,47 @@
 							</select>
 						</div>
 						<div class="form-control max-w-xs justify-end">
+							<label class="label" for="newAttendeeIsChild">
+								<span class="label-text">Ist diese Person ein Kind?</span>
+							</label>
+							<label class="label cursor-pointer justify-start inline-flex h-12">
+								<input
+									id="newAttendeeIsChild"
+									type="checkbox"
+									bind:checked={newAttendeeIsChild}
+									class="checkbox checkbox-primary"
+								/>
+								<span class="label-text text-lg relative">
+									&nbsp;&nbsp;
+									{#if newAttendeeIsChild}
+										<span class="absolute" transition:scale>&nbsp;&nbsp;Ja&nbsp;&nbsp;</span>
+									{:else}
+										<span class="absolute" transition:scale>Nein</span>
+									{/if}
+								</span>
+							</label>
+						</div>
+						{#if newAttendeeIsChild}
+							<div class="form-control w-20 max-w-xs justify-end" transition:fade>
+								<label class="label" for="age">
+									<span class="label-text text-base">Alter:</span>
+								</label>
+								<input
+									id="age"
+									type="number"
+									bind:value={newAttendeeAge}
+									min="0"
+									max="17"
+									class="input input-bordered w-full max-w-xs"
+								/>
+							</div>
+						{/if}
+						<div class="form-control max-w-xs justify-end">
 							<button
 								class="btn btn-primary"
 								type="submit"
-								disabled={!newAttendeeName || newAttendeeAge <= 0 ? 'disabled' : undefined}>Hinzufügen</button
+								disabled={!newAttendeeName || (newAttendeeIsChild && newAttendeeAge <= 0) ? 'disabled' : undefined}
+								>Hinzufügen</button
 							>
 						</div>
 						<div class="form-control max-w-xs justify-end">
@@ -646,6 +704,7 @@
 								on:click={() => {
 									showNewAttendeeForm = false;
 									newAttendeeName = '';
+									newAttendeeIsChild = false;
 									newAttendeeAge = 0;
 									newAttendeeFoodPreference = '';
 								}}>Abbrechen</button

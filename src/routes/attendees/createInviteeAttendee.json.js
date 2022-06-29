@@ -5,7 +5,7 @@ import { gql } from 'graphql-request';
 export const post = async ({ request }) => {
 	const attendeeData = await request.json();
 
-	if (!attendeeData.age || attendeeData.age <= 0 || !attendeeData.name || !attendeeData.inviteeId) {
+	if (!attendeeData.age || (attendeeData.isChild && attendeeData.age <= 0) || !attendeeData.name || !attendeeData.inviteeId) {
 		return { status: 400, body: { error: 'Ungültige Eingabe!' } };
 	}
 
@@ -14,6 +14,7 @@ export const post = async ({ request }) => {
 			mutation CreateNewAttendee(
 				$slug: String!
 				$name: String!
+				$isChild: Boolean
 				$age: Int!
 				$foodPreference: String
 				$isInvitee: Boolean
@@ -23,6 +24,7 @@ export const post = async ({ request }) => {
 					data: {
 						slug: $slug
 						name: $name
+						isChild: $isChild
 						age: $age
 						isInvitee: $isInvitee
 						foodPreference: $foodPreference
@@ -44,6 +46,7 @@ export const post = async ({ request }) => {
 				.replace('ß', 'ss')
 				.replace(/[^0-9a-z-_]/g, ''),
 			name: attendeeData.name,
+			isChild: attendeeData.isChild,
 			age: attendeeData.age,
 			foodPreference: attendeeData.foodPreference,
 			isInvitee: attendeeData.isInvitee,
@@ -57,6 +60,7 @@ export const post = async ({ request }) => {
 					id
 					slug
 					name
+					isChild
 					age
 					foodPreference
 					isInvitee

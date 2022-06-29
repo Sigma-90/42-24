@@ -11,14 +11,15 @@ export const post = async ({ request }) => {
 
 	try {
 		const query = gql`
-			mutation updateAttendeeData($attendeeId: ID!, $name: String!, $age: Int!, $foodPreference: String) {
+			mutation updateAttendeeData($attendeeId: ID!, $name: String!, $isChild: Boolean, $age: Int!, $foodPreference: String) {
 				attendee: updateAttendee(
 					where: { id: $attendeeId }
-					data: { name: $name, age: $age, foodPreference: $foodPreference }
+					data: { name: $name, isChild: $isChild, age: $age, foodPreference: $foodPreference }
 				) {
 					id
 					slug
 					name
+					isChild
 					age
 					foodPreference
 					isInvitee
@@ -31,6 +32,7 @@ export const post = async ({ request }) => {
 		`;
 		const variables = {
 			name: attendeeData.name,
+			isChild: attendeeData.isChild,
 			age: attendeeData.age,
 			foodPreference: attendeeData.foodPreference,
 			attendeeId: attendeeData.attendeeId,
