@@ -19,7 +19,7 @@
 							  });
 					let childrenCount = 0;
 					event.attendees.forEach((attendee, index) => {
-						if (attendee.age < 12) {
+						if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
 							childrenCount += 1;
 						}
 					});
@@ -75,7 +75,7 @@
 	};
 
 	const updateEventChildrenCount = (event) => {
-		const newChildrenCount = event.attendees.filter((att) => att.age < childrenAgeThreshold).length;
+		const newChildrenCount = event.attendees.filter((att) => att.age !== 0 && att.age < childrenAgeThreshold).length;
 		const eventPos = invitee.eligibleEvents.findIndex((evt) => evt.id === event.id);
 		invitee.eligibleEvents[eventPos].childrenCount = newChildrenCount;
 
@@ -140,7 +140,7 @@
 						  });
 				let childrenCount = 0;
 				event.attendees.forEach((attendee, index) => {
-					if (attendee.age < childrenAgeThreshold) {
+					if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
 						childrenCount += 1;
 					}
 				});
@@ -258,7 +258,7 @@
 						  });
 				let childrenCount = 0;
 				event.attendees.forEach((attendee, index) => {
-					if (attendee.age < childrenAgeThreshold) {
+					if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
 						childrenCount += 1;
 					}
 				});
