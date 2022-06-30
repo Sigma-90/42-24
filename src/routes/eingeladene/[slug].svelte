@@ -19,7 +19,7 @@
 							  });
 					let childrenCount = 0;
 					event.attendees.forEach((attendee, index) => {
-						if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
+						if (attendee.age !== 0 && attendee.age < 12) {
 							childrenCount += 1;
 						}
 					});
