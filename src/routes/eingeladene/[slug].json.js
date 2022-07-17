@@ -30,6 +30,9 @@ export const get = async (/** @type {any} */ request) => {
 					attendedEvents {
 						id
 					}
+					declinedEvents {
+						id
+					}
 					attendees {
 						id
 						slug

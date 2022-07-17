@@ -9,6 +9,7 @@
 			if (inv.eligibleEvents) {
 				inv.eligibleEvents.forEach((event, index) => {
 					const inviteeWillAttend = inv.attendedEvents.find((evt) => evt.id === event.id);
+					const inviteeHasDeclined = inv.declinedEvents.find((evt) => evt.id === event.id);
 					const attendeeCount = event.attendees.length || 0;
 					const eligibleAttendees =
 						!inv.attendees || !inv.attendees.length
@@ -25,7 +26,7 @@
 					});
 					allEvents[index].attendeeCount = attendeeCount;
 					allEvents[index].childrenCount = childrenCount;
-					allEvents[index].inviteeWillAttend = !!inviteeWillAttend;
+					allEvents[index].inviteeWillAttend = !!inviteeHasDeclined ? 'n' : !!inviteeWillAttend ? 'y' : undefined;
 					allEvents[index].inviteeAttendees = eligibleAttendees;
 				});
 			}
@@ -82,6 +83,34 @@
 		invitee = { ...invitee };
 	};
 
+	const updateInviteeEventList = () => {
+		if (invitee.eligibleEvents) {
+			invitee.eligibleEvents.forEach((event, index) => {
+				const inviteeWillAttend = invitee.attendedEvents.find((evt) => evt.id === event.id);
+				const inviteeHasDeclined = invitee.declinedEvents.find((evt) => evt.id === event.id);
+				const attendeeCount = event.attendees.length || 0;
+				const eligibleAttendees =
+					!invitee.attendees || !invitee.attendees.length
+						? []
+						: invitee.attendees.map((attendee) => {
+								const isAttendingEvent = attendee.events && !!attendee.events.find((evt) => evt.id === event.id);
+								return { ...attendee, isAttendingEvent, eventId: event.id };
+						  });
+				let childrenCount = 0;
+				event.attendees.forEach((attendee, index) => {
+					if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
+						childrenCount += 1;
+					}
+				});
+				invitee.eligibleEvents[index].attendeeCount = attendeeCount;
+				invitee.eligibleEvents[index].childrenCount = childrenCount;
+				invitee.eligibleEvents[index].inviteeWillAttend = !!inviteeHasDeclined ? 'n' : !!inviteeWillAttend ? 'y' : undefined;
+				invitee.eligibleEvents[index].inviteeAttendees = eligibleAttendees;
+			});
+		}
+		invitee = { ...invitee };
+	};
+
 	const addAttendee = async () => {
 		if (!newAttendeeName || (newAttendeeIsChild && newAttendeeAge <= 0)) {
 			alert('Nicht alle Felder ausgefüllt!');
@@ -127,31 +156,7 @@
 		showNewAttendeeForm = false;
 
 		invitee.attendees.push(attendee);
-		if (invitee.eligibleEvents) {
-			invitee.eligibleEvents.forEach((event, index) => {
-				const inviteeWillAttend = invitee.attendedEvents.find((evt) => evt.id === event.id);
-				const attendeeCount = event.attendees.length || 0;
-				const eligibleAttendees =
-					!invitee.attendees || !invitee.attendees.length
-						? []
-						: invitee.attendees.map((attendee) => {
-								const isAttendingEvent = attendee.events && !!attendee.events.find((evt) => evt.id === event.id);
-								return { ...attendee, isAttendingEvent, eventId: event.id };
-						  });
-				let childrenCount = 0;
-				event.attendees.forEach((attendee, index) => {
-					if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
-						childrenCount += 1;
-					}
-				});
-				invitee.eligibleEvents[index].attendeeCount = attendeeCount;
-				invitee.eligibleEvents[index].childrenCount = childrenCount;
-				invitee.eligibleEvents[index].inviteeWillAttend = !!inviteeWillAttend;
-				invitee.eligibleEvents[index].inviteeAttendees = eligibleAttendees;
-			});
-		}
-
-		invitee = { ...invitee };
+		updateInviteeEventList();
 	};
 
 	const editAttendee = async (event) => {
@@ -204,7 +209,7 @@
 
 		editAttendeeId = '';
 
-		invitee = { ...invitee };
+		updateInviteeEventList();
 	};
 
 	const deleteAttendee = async (attendeeId) => {
@@ -245,29 +250,6 @@
 
 		invitee.attendees = invitee.attendees.filter((listEntry) => listEntry.id !== attendee.id);
 
-		if (invitee.eligibleEvents) {
-			invitee.eligibleEvents.forEach((event, index) => {
-				const inviteeWillAttend = invitee.attendedEvents.find((evt) => evt.id === event.id);
-				const attendeeCount = event.attendees.length || 0;
-				const eligibleAttendees =
-					!invitee.attendees || !invitee.attendees.length
-						? []
-						: invitee.attendees.map((attendee) => {
-								const isAttendingEvent = attendee.events && !!attendee.events.find((evt) => evt.id === event.id);
-								return { ...attendee, isAttendingEvent, eventId: event.id };
-						  });
-				let childrenCount = 0;
-				event.attendees.forEach((attendee, index) => {
-					if (attendee.age !== 0 && attendee.age < childrenAgeThreshold) {
-						childrenCount += 1;
-					}
-				});
-				invitee.eligibleEvents[index].attendeeCount = attendeeCount;
-				invitee.eligibleEvents[index].childrenCount = childrenCount;
-				invitee.eligibleEvents[index].inviteeWillAttend = !!inviteeWillAttend;
-				invitee.eligibleEvents[index].inviteeAttendees = eligibleAttendees;
-			});
-		}
 		if (!invitee.attendees || !invitee.attendees.length) {
 			showNewAttendeeForm = true;
 			newAttendeeName = fullName;
@@ -276,10 +258,10 @@
 			newAttendeeFoodPreference = '';
 		}
 
-		invitee = { ...invitee };
+		updateInviteeEventList();
 	};
 
-	const toggleEventInviteeStatus = async (eventId) => {
+	const executeInviteeEventAttendanceCommittment = async (eventId, rerenderAfterSuccess = true) => {
 		if (!invitee.attendedEvents || !invitee.attendedEvents.find((evt) => evt.id === eventId)) {
 			$actionIsPending = true;
 
@@ -291,13 +273,16 @@
 				body: JSON.stringify({ eventId, inviteeId: invitee.id }),
 			});
 
-			$actionIsPending = false;
-
 			if (!response.ok) {
+				$actionIsPending = false;
 				const { error } = await response.json();
 				alert(error);
 				//throw new Error(error);
-				return;
+				return false;
+			}
+
+			if (rerenderAfterSuccess) {
+				$actionIsPending = false;
 			}
 
 			if (!invitee.attendedEvents) {
@@ -305,8 +290,19 @@
 			}
 			invitee.attendedEvents.push({ id: eventId });
 
-			invitee = { ...invitee };
+			if (rerenderAfterSuccess) {
+				updateInviteeEventList();
+			}
+
+			return true;
 		} else {
+			console.log('Already attending this event, no need to commit to it again.');
+		}
+		return false;
+	};
+
+	const executeInviteeEventAttendanceRescindence = async (eventId, rerenderAfterSuccess = true) => {
+		if (invitee.attendedEvents && !!invitee.attendedEvents.find((evt) => evt.id === eventId)) {
 			$actionIsPending = true;
 
 			const response = await fetch('/events/disconnectEventFromInvitee.json', {
@@ -317,13 +313,16 @@
 				body: JSON.stringify({ eventId, inviteeId: invitee.id }),
 			});
 
-			$actionIsPending = false;
-
 			if (!response.ok) {
+				$actionIsPending = false;
 				const { error } = await response.json();
 				alert(error);
 				//throw new Error(error);
-				return;
+				return false;
+			}
+
+			if (rerenderAfterSuccess) {
+				$actionIsPending = false;
 			}
 
 			const evtPos = invitee.attendedEvents.findIndex((evt) => evt.id === eventId);
@@ -331,149 +330,322 @@
 				invitee.attendedEvents.splice(evtPos, 1);
 			}
 
-			invitee = { ...invitee };
+			if (rerenderAfterSuccess) {
+				updateInviteeEventList();
+			}
+
+			return true;
+		} else {
+			console.log('No attendance for this event was registered, so there is nothing to take back here.');
 		}
+		return false;
+	};
+
+	const executeInviteeEventDeclinationCommittment = async (eventId, rerenderAfterSuccess = true) => {
+		if (!invitee.declinedEvents || !invitee.declinedEvents.find((evt) => evt.id === eventId)) {
+			$actionIsPending = true;
+
+			const response = await fetch('/events/connectEventDeclinationToInvitee.json', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ eventId, inviteeId: invitee.id }),
+			});
+
+			if (!response.ok) {
+				$actionIsPending = false;
+				const { error } = await response.json();
+				alert(error);
+				//throw new Error(error);
+				return false;
+			}
+
+			if (rerenderAfterSuccess) {
+				$actionIsPending = false;
+			}
+
+			if (!invitee.declinedEvents) {
+				invitee.declinedEvents = [];
+			}
+			invitee.declinedEvents.push({ id: eventId });
+
+			if (rerenderAfterSuccess) {
+				updateInviteeEventList();
+			}
+
+			return true;
+		} else {
+			console.log('This event was already declined. No action taken.');
+		}
+		return false;
+	};
+
+	const executeInviteeEventDeclinationRescindence = async (eventId, rerenderAfterSuccess = true) => {
+		if (invitee.declinedEvents && !!invitee.declinedEvents.find((evt) => evt.id === eventId)) {
+			$actionIsPending = true;
+
+			const response = await fetch('/events/disconnectEventDeclinationFromInvitee.json', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ eventId, inviteeId: invitee.id }),
+			});
+
+			if (!response.ok) {
+				$actionIsPending = false;
+				const { error } = await response.json();
+				alert(error);
+				//throw new Error(error);
+				return false;
+			}
+
+			if (rerenderAfterSuccess) {
+				$actionIsPending = false;
+			}
+
+			const evtPos = invitee.declinedEvents.findIndex((evt) => evt.id === eventId);
+			if (evtPos >= 0) {
+				invitee.declinedEvents.splice(evtPos, 1);
+			}
+
+			if (rerenderAfterSuccess) {
+				updateInviteeEventList();
+			}
+
+			return true;
+		} else {
+			console.log('The event was not declined, so there is nothing to take back here.');
+		}
+		return false;
+	};
+
+	const executeAttendeeEventCommittment = async (attendeeData, rerenderAfterSuccess = true) => {
+		attendeeData.isAttendingEvent = true;
+		$actionIsPending = true;
+
+		const response = await fetch('/events/connectAttendeeToEvent.json', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ attendeeId: attendeeData.id, eventId: attendeeData.eventId, inviteeId: invitee.id }),
+		});
+
+		$actionIsPending = false;
+
+		if (!response.ok) {
+			attendeeData.isAttendingEvent = false;
+			$actionIsPending = false;
+			attendeeData.isAttending = false;
+			const { error } = await response.json();
+			alert(error);
+			//throw new Error(error);
+			return false;
+		}
+
+		if (rerenderAfterSuccess) {
+			$actionIsPending = false;
+		}
+
+		const aIndex = invitee.attendees.findIndex((att) => att.id === attendeeData.id);
+		const eIndex = invitee.eligibleEvents.findIndex((evt) => evt.id === attendeeData.eventId);
+		if (aIndex >= 0) {
+			if (!invitee.attendees[aIndex].events) {
+				invitee.attendees[aIndex].events = [];
+			}
+			if (invitee.attendees[aIndex].events.findIndex((evt) => evt.id === attendeeData.eventId) < 0) {
+				invitee.attendees[aIndex].events.push({ id: attendeeData.eventId });
+			}
+		}
+		if (eIndex >= 0) {
+			if (!invitee.eligibleEvents[eIndex].attendees) {
+				invitee.eligibleEvents[eIndex].attendees = [];
+			}
+			if (invitee.eligibleEvents[eIndex].attendees.findIndex((att) => att.id === attendeeData.id) < 0) {
+				invitee.eligibleEvents[eIndex].attendees.push({ id: attendeeData.id, age: attendeeData.age });
+			}
+
+			if (attendeeData.isInvitee) {
+				invitee.eligibleEvents[eIndex].inviteeWillAttend = 'y';
+			}
+		}
+		if (!invitee.attendedEvents) {
+			invitee.attendedEvents = [];
+		}
+		if (attendeeData.isInvitee && invitee.attendedEvents.findIndex((evt) => evt.id === attendeeData.eventId) < 0) {
+			invitee.attendedEvents.push({ id: attendeeData.eventId });
+		}
+
+		if (rerenderAfterSuccess) {
+			updateInviteeEventList();
+		}
+
+		return true;
+	};
+
+	const executeAttendeeEventRescindence = async (attendeeData, rerenderAfterSuccess = true) => {
+		attendeeData.isAttendingEvent = false;
+		$actionIsPending = true;
+
+		const response = await fetch('/events/disconnectAttendeeFromEvent.json', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ attendeeId: attendeeData.id, eventId: attendeeData.eventId, inviteeId: invitee.id }),
+		});
+
+		if (!response.ok) {
+			attendeeData.isAttendingEvent = true;
+			$actionIsPending = false;
+			attendeeData.isAttending = true;
+			const { error } = await response.json();
+			alert(error);
+			//throw new Error(error);
+			return false;
+		}
+
+		if (rerenderAfterSuccess) {
+			$actionIsPending = false;
+		}
+
+		const aIndex = invitee.attendees.findIndex((att) => att.id === attendeeData.id);
+		const eIndex = invitee.eligibleEvents.findIndex((evt) => evt.id === attendeeData.eventId);
+		if (aIndex >= 0 && invitee.attendees[aIndex].events) {
+			const aEvtIndex = invitee.attendees[aIndex].events.findIndex((evt) => evt.id === attendeeData.eventId);
+			if (aEvtIndex >= 0) {
+				invitee.attendees[aIndex].events.splice(aEvtIndex, 1);
+			}
+		}
+		if (eIndex >= 0) {
+			const eAttIndex = invitee.eligibleEvents[eIndex].attendees.findIndex((att) => att.id === attendeeData.id);
+			if (eAttIndex >= 0) {
+				invitee.eligibleEvents[eIndex].attendees.splice(eAttIndex, 1);
+			}
+			if (attendeeData.isInvitee) {
+				invitee.eligibleEvents[eIndex].inviteeWillAttend = undefined;
+			}
+		}
+		if (attendeeData.isInvitee) {
+			const attEvIndex = invitee.attendedEvents.findIndex((evt) => evt.id === attendeeData.eventId);
+			if (attEvIndex >= 0) {
+				invitee.attendedEvents.splice(attEvIndex, 1);
+			}
+		}
+
+		if (rerenderAfterSuccess) {
+			updateInviteeEventList();
+		}
+
+		return true;
 	};
 
 	const toggleEventAttendeeStatus = async (attendeeData) => {
 		if (attendeeData.isAttendingEvent) {
-			$actionIsPending = true;
-
-			const response = await fetch('/events/connectAttendeeToEvent.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ attendeeId: attendeeData.id, eventId: attendeeData.eventId, inviteeId: invitee.id }),
-			});
-
-			$actionIsPending = false;
-
-			if (!response.ok) {
-				attendeeData.isAttending = false;
-				const { error } = await response.json();
-				alert(error);
-				//throw new Error(error);
-				return;
-			}
-
-			const aIndex = invitee.attendees.findIndex((att) => att.id === attendeeData.id);
-			const eIndex = invitee.eligibleEvents.findIndex((evt) => evt.id === attendeeData.eventId);
-			if (aIndex >= 0) {
-				if (!invitee.attendees[aIndex].events) {
-					invitee.attendees[aIndex].events = [];
-				}
-				if (invitee.attendees[aIndex].events.findIndex((evt) => evt.id === attendeeData.eventId) < 0) {
-					invitee.attendees[aIndex].events.push({ id: attendeeData.eventId });
-				}
-			}
-			if (eIndex >= 0) {
-				if (!invitee.eligibleEvents[eIndex].attendees) {
-					invitee.eligibleEvents[eIndex].attendees = [];
-				}
-				if (invitee.eligibleEvents[eIndex].attendees.findIndex((att) => att.id === attendeeData.id) < 0) {
-					invitee.eligibleEvents[eIndex].attendees.push({ id: attendeeData.id, age: attendeeData.age });
-				}
-
-				if (attendeeData.isInvitee) {
-					invitee.eligibleEvents[eIndex].inviteeWillAttend = true;
-				}
-			}
-			if (!invitee.attendedEvents) {
-				invitee.attendedEvents = [];
-			}
-			if (attendeeData.isInvitee && invitee.attendedEvents.findIndex((evt) => evt.id === attendeeData.eventId) < 0) {
-				invitee.attendedEvents.push({ id: attendeeData.eventId });
-			}
-
-			invitee = { ...invitee };
+			executeAttendeeEventCommittment(attendeeData);
 		} else {
-			$actionIsPending = true;
-
-			const response = await fetch('/events/disconnectAttendeeFromEvent.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ attendeeId: attendeeData.id, eventId: attendeeData.eventId, inviteeId: invitee.id }),
-			});
-
-			$actionIsPending = false;
-
-			if (!response.ok) {
-				attendeeData.isAttending = true;
-				const { error } = await response.json();
-				alert(error);
-				//throw new Error(error);
-				return;
-			}
-
-			const aIndex = invitee.attendees.findIndex((att) => att.id === attendeeData.id);
-			const eIndex = invitee.eligibleEvents.findIndex((evt) => evt.id === attendeeData.eventId);
-			if (aIndex >= 0) {
-				const aEvtIndex = invitee.attendees[aIndex].events.findIndex((evt) => evt.id === attendeeData.eventId);
-				if (aEvtIndex >= 0) {
-					invitee.attendees[aIndex].events.splice(aEvtIndex, 1);
-				}
-			}
-			if (eIndex >= 0) {
-				const eAttIndex = invitee.eligibleEvents[eIndex].attendees.findIndex((att) => att.id === attendeeData.id);
-				if (eAttIndex >= 0) {
-					invitee.eligibleEvents[eIndex].attendees.splice(eAttIndex, 1);
-				}
-				if (attendeeData.isInvitee) {
-					invitee.eligibleEvents[eIndex].inviteeWillAttend = false;
-				}
-			}
-			if (attendeeData.isInvitee) {
-				const attEvIndex = invitee.attendedEvents.findIndex((evt) => evt.id === attendeeData.eventId);
-				if (attEvIndex >= 0) {
-					invitee.attendedEvents.splice(attEvIndex, 1);
-				}
-			}
-
-			invitee = { ...invitee };
+			executeAttendeeEventRescindence(attendeeData);
 		}
-	};
-
-	const registerInviteeForEvent = async (event) => {
-		const ivAtt = event.inviteeAttendees.find((att) => att.isInvitee);
-		if (!ivAtt) {
-			alert('Es ist ein Fehler aufgetreten.');
-			return;
-		}
-		await toggleEventInviteeStatus(event.id);
-		ivAtt.isAttendingEvent = true;
-		await toggleEventAttendeeStatus(ivAtt);
 	};
 
 	const unregisterInviteeFromEvent = async (event) => {
 		const ivAtt = event.inviteeAttendees.find((att) => att.isInvitee);
 		if (!ivAtt) {
-			alert('Es ist ein Fehler aufgetreten.');
-			return;
+			console.log('No Attendee found that represents the Invitee');
+			return false;
 		}
-		await toggleEventInviteeStatus(event.id);
-		await event.inviteeAttendees.forEach(async (att) => {
-			if (att.isAttendingEvent && !att.isInvitee) {
-				att.isAttendingEvent = false;
-				await toggleEventAttendeeStatus(att);
+		if (await executeInviteeEventAttendanceRescindence(event.id, false)) {
+			await event.inviteeAttendees.forEach(async (att) => {
+				if (att.isAttendingEvent && !att.isInvitee) {
+					await executeAttendeeEventRescindence(att, false);
+				}
+			});
+			return await executeAttendeeEventRescindence(ivAtt);
+		}
+		return false;
+	};
+
+	const confirmEventInvitation = async (eventId) => {
+		const event = invitee.eligibleEvents.find((evt) => evt.id === eventId);
+		if (!event) {
+			console.log('Invitee not eligible for Event');
+			alert('Es ist ein Fehler aufgetreten.');
+			return false;
+		}
+		const ivAtt = event.inviteeAttendees.find((att) => att.isInvitee);
+		if (!ivAtt) {
+			console.log('No Attendee found that represents the Invitee');
+			alert('Es ist ein Fehler aufgetreten.');
+			return false;
+		}
+		const inviteeHasAlreadyDeclined = invitee.declinedEvents && !!invitee.declinedEvents.find((evt) => evt.id === eventId);
+		console.log(
+			`Attempting to perform event invitation confirmation ${
+				inviteeHasAlreadyDeclined ? 'while' : 'without'
+			} first taking back a pre-existing declination`
+		);
+		if (!inviteeHasAlreadyDeclined) {
+			if (await executeInviteeEventAttendanceCommittment(event.id, false)) {
+				return await executeAttendeeEventCommittment(ivAtt);
 			}
-		});
-		ivAtt.isAttendingEvent = false;
-		await toggleEventAttendeeStatus(ivAtt);
+		} else if (await executeInviteeEventDeclinationRescindence(event.id, false)) {
+			if (await executeInviteeEventAttendanceCommittment(event.id, false)) {
+				return await executeAttendeeEventCommittment(ivAtt);
+			}
+		}
+		return false;
+	};
+
+	const declineEventInvitation = async (eventId) => {
+		const event = invitee.eligibleEvents.find((evt) => evt.id === eventId);
+		if (!event) {
+			console.log('Invitee not eligible for Event');
+			alert('Es ist ein Fehler aufgetreten.');
+			return false;
+		}
+		const invitedAttendee = event.inviteeAttendees.find((att) => att.isInvitee);
+		const inviteeHasAlreadyConfirmed = !!invitedAttendee && invitedAttendee.isAttendingEvent;
+		console.log(
+			`Attempting to perform event invitation declination ${
+				inviteeHasAlreadyConfirmed ? 'while' : 'without'
+			} first taking back a pre-existing confirmation`
+		);
+		if (!inviteeHasAlreadyConfirmed) {
+			return await executeInviteeEventDeclinationCommittment(event.id);
+		} else if (await unregisterInviteeFromEvent(event)) {
+			return await executeInviteeEventDeclinationCommittment(event.id);
+		}
+		return false;
+	};
+
+	const revertEventInvitationDeclination = async (eventId) => {
+		const event = invitee.eligibleEvents.find((evt) => evt.id === eventId);
+		if (!event) {
+			console.log('Invitee not eligible for Event');
+			alert('Es ist ein Fehler aufgetreten.');
+			return false;
+		}
+		return await executeInviteeEventDeclinationRescindence(event.id);
 	};
 
 	const toggleEventRegistration = async (eventId) => {
 		const event = invitee.eligibleEvents.find((evt) => evt.id === eventId);
 		if (!event) {
+			console.log('Invitee not eligible for toggled Event');
 			alert('Es ist ein Fehler aufgetreten.');
 			return;
 		}
-		if (event.inviteeWillAttend) {
-			await registerInviteeForEvent(event);
+		if (event.inviteeWillAttend === 'y') {
+			await confirmEventInvitation(event.id);
+		} else if (event.inviteeWillAttend === 'n') {
+			await declineEventInvitation(event.id);
 		} else {
-			await unregisterInviteeFromEvent(event);
+			await executeInviteeEventDeclinationRescindence(event.id, false);
+			if (!(await unregisterInviteeFromEvent(event))) {
+				$actionIsPending = false;
+			}
 		}
 	};
 </script>
@@ -796,11 +968,44 @@
 							{#if !invitee.isHost}
 								<section class="mb-2">
 									{#if !invitee.attendees || !invitee.attendees.length}
-										<h4 class="font-semibold block mt-2 mb-2 text-xl">Teilnahmebestätigung</h4>
-										<p class="text-lg">
-											Du kannst erst zu diesem Event zusagen, wenn du der obigen Teilnehmerliste mindestens einen Eintrag
-											(nämlich den für dich selbst) hinzugefügt hast.
-										</p>
+										{#if event.inviteeWillAttend === 'n'}
+											<h4 class="font-semibold block mt-2 mb-2 text-xl">Absage erteilt</h4>
+											<p class="text-md mb-2">
+												Du hast angegeben, dass du an diesem Event leider nicht teilnehmen kannst. Sollte sich dieser Umstand
+												geändert haben, klicke einfach den folgenden Button, um doch noch eine Zusage machen zu können.
+											</p>
+											<button
+												type="button"
+												class="btn btn-primary"
+												on:click={() => {
+													revertEventInvitationDeclination(event.id);
+												}}>Absage zurückziehen</button
+											>
+										{:else}
+											<h4 class="font-semibold block mt-2 mb-2 text-xl">Teilnahmebestätigung</h4>
+											<p class="text-md">
+												Du kannst erst zu diesem Event zusagen, wenn du der obigen Teilnehmerliste mindestens einen Eintrag
+												(nämlich den für dich selbst) hinzugefügt hast.
+											</p>
+											<h4 class="font-semibold block mt-2 mb-2 text-xl">Definitive Absage erteilen</h4>
+											<p class="text-md mb-2">
+												Wenn du dir sicher bist, dass du an diesem Termin keine Zeit hast, dann gib hier bitte an, dass du nicht
+												kommen kannst. <br />
+												Damit hilfst du mir, Klarheit darüber zu erlangen, wer nun definitiv nicht kommt und wer aus unterschiedlichen
+												Gründen nur noch nicht zugesagt hat.
+												<br />
+												Du ersparst dir so zudem auch unnötige Nachfragen meinerseits, da ich alle Unentschlossenen in regelmäßigen
+												Abständen nochmal an die ausstehende Einladung erinnern muss, um möglichst zeitnah alle benötigten Informationen
+												zur Veranstaltungs&shy;planung und Reservierungs&shy;angaben beisammen zu haben.
+											</p>
+											<button
+												type="button"
+												class="btn btn-primary"
+												on:click={() => {
+													declineEventInvitation(event.id);
+												}}>Absagen</button
+											>
+										{/if}
 									{:else}
 										<h4 class="font-semibold block mt-2 mb-2 text-xl">Nimmst du an diesem Event teil?</h4>
 										<!-- <div class="form-control block">
@@ -816,7 +1021,7 @@
 											/>
 											<span class="label-text text-lg relative">
 												&nbsp;&nbsp;
-												{#if event.inviteeWillAttend || true}
+												{#if event.inviteeWillAttend === 'y' || true}
 													<span class="absolute" transition:scale>&nbsp;&nbsp;Ja&nbsp;&nbsp;</span>
 												{:else}
 													<span class="absolute" transition:scale>Nein</span>
@@ -834,9 +1039,9 @@
 													on:change={() => {
 														toggleEventRegistration(event.id);
 													}}
-													value={false}
+													value={'n'}
 												/>
-												<span class="label-text text-lg ml-4">Nein</span>
+												<span class="label-text text-lg ml-4">Nein, leider keine Zeit</span>
 											</label>
 										</div>
 										<div class="form-control">
@@ -849,15 +1054,30 @@
 													on:change={() => {
 														toggleEventRegistration(event.id);
 													}}
-													value={true}
+													value={undefined}
 												/>
-												<span class="label-text text-lg ml-4">Ja</span>
+												<span class="label-text text-lg ml-4">Ich weiß noch nicht</span>
+											</label>
+										</div>
+										<div class="form-control">
+											<label class="label cursor-pointer justify-start">
+												<input
+													type="radio"
+													name={'radio_attending_' + event.slug}
+													class="radio radio-primary"
+													bind:group={event.inviteeWillAttend}
+													on:change={() => {
+														toggleEventRegistration(event.id);
+													}}
+													value={'y'}
+												/>
+												<span class="label-text text-lg ml-4">Ja, ich bin dabei</span>
 											</label>
 										</div>
 									{/if}
 								</section>
 							{/if}
-							{#if event.inviteeWillAttend || invitee.isHost}
+							{#if event.inviteeWillAttend === 'y' || invitee.isHost}
 								<div transition:slide>
 									{#if !invitee.isHost}
 										<h4 class="font-semibold block mt-2 mb-2 text-xl">Teilnehmende Personen:</h4>
