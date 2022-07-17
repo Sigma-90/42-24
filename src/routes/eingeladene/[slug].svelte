@@ -5,8 +5,8 @@
 		if (response.ok) {
 			const { invitee } = await response.json();
 			const inv = JSON.parse(JSON.stringify(invitee));
-			const allEvents = inv.eligibleEvents;
-			if (inv.eligibleEvents) {
+			const allEvents = !!inv && Object.prototype.hasOwnProperty.call(inv, 'eligibleEvents') ? inv.eligibleEvents : undefined;
+			if (allEvents) {
 				inv.eligibleEvents.forEach((event, index) => {
 					const inviteeWillAttend = inv.attendedEvents.find((evt) => evt.id === event.id);
 					const inviteeHasDeclined = inv.declinedEvents.find((evt) => evt.id === event.id);
@@ -44,12 +44,12 @@
 
 	export let invitee;
 
-	let fullName = invitee.name + (invitee.lastName ? ` ${invitee.lastName}` : '');
+	let fullName = !invitee ? '' : invitee.name + (invitee.lastName ? ` ${invitee.lastName}` : '');
 
-	let showNewAttendeeForm = invitee.attendees && invitee.attendees.length ? false : true;
+	let showNewAttendeeForm = !invitee ? false : invitee.attendees && invitee.attendees.length ? false : true;
 
 	let editAttendeeId = '';
-	let newAttendeeName = invitee.attendees && invitee.attendees.length ? '' : fullName;
+	let newAttendeeName = !invitee ? '' : invitee.attendees && invitee.attendees.length ? '' : fullName;
 	let newAttendeeIsChild = false;
 	let newAttendeeAge = 0;
 	let newAttendeeFoodPreference = '';
@@ -1112,6 +1112,14 @@
 												</li>
 											{/each}
 										</ol>
+										<h4 class="font-semibold block mt-2 mb-2 text-xl">Insgesamte Absagen:</h4>
+										<ol class="list-decimal">
+											{#each event.decliningInvitees as invitee}
+												<li class="list-item list-inside text-lg">
+													{invitee.name + (invitee.lastName ? ` ${invitee.lastName}` : '')}
+												</li>
+											{/each}
+										</ol>
 									{/if}
 								</div>
 							{/if}
@@ -1121,4 +1129,6 @@
 			</ul>
 		{/if}
 	</section>
+{:else}
+	<h2 class="text-4xl font-extrabold text-center bg-base-100 shadow-lg mt-12 py-6 px-4">404 - Seite nicht gefunden</h2>
 {/if}

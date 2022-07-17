@@ -1,12 +1,12 @@
 <script>
-	import { navigating } from '$app/stores';
+	import { navigating, page } from '$app/stores';
 	import { actionIsPending } from '$lib/utils/stores';
 	import Spinner from '$lib/components/spinner.svelte';
 	import IntroHeader from '$lib/components/introHeader.svelte';
 	import '../app.css';
 </script>
 
-<IntroHeader />
+<IntroHeader playOnMount={$page.url.pathname === '/' || !$page.url.pathname} />
 <main class="mx-auto max-w-6xl p-6">
 	<slot />
 </main>
