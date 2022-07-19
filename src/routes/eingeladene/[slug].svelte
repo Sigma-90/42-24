@@ -165,7 +165,7 @@
 			return;
 		}
 		const currentAttendee = invitee.attendees.find((attendee) => attendee.id === editAttendeeId);
-		if (!currentAttendee.name || currentAttendee.age <= 0) {
+		if (!currentAttendee.name || (newAttendeeIsChild && currentAttendee.age <= 0)) {
 			alert('Nicht alle Felder ausgefüllt!');
 			return;
 		}
